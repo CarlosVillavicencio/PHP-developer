@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+<employees>
+<employee id="574daa379545e9af101c2731"><name>Foley Day</name><email>foleyday@fanfare.com</email><phone>+0511 (895) 577-2157</phone><address>850 Clara Street, Westmoreland, Kansas, 6963</address><position>developer</position><salary>1192</salary><salary>1192</salary><skills>Python, CSS, C#, JS, Lisp</skills></employee><employee id="574daa37b6b60c495de67280"><name>Mckee Summers</name><email>mckeesummers@fanfare.com</email><phone>+0511 (873) 578-3997</phone><address>733 Everett Avenue, Centerville, Colorado, 6706</address><position>developer</position><salary>1282</salary><salary>1282</salary><skills>Lisp, Python, Python, JS, Java</skills></employee></employees>

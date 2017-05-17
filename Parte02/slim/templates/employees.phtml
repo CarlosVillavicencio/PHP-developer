@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Slim 3</title>
+        <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <style>
+        </style>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                listado = [<?php echo json_encode($listado); ?>];
+                $('#filtar_email').keyup(function () {
+                    var texto = $(this).val();
+                    var conteo = 0;
+                    $('#table_filtrar tbody tr td[type="email"]').each(function () {
+                        conteo = conteo + 1;
+                        var texto_tr = $(this).text();
+                        if (texto_tr.indexOf(texto) > -1) {
+                            if ($(this).parent('tr').hasClass('hidden')) {
+                                $(this).parent('tr').removeClass('hidden');
+                            }
+                        } else {
+                            $(this).parent('tr').addClass('hidden');
+                        }
+                    });
+                });
+                $('#input_min').keyup(function () {
+                    if (!$('#link_descarga').hasClass('hidden')) {
+                        $('#link_descarga').addClass('hidden');
+                    }
+                });
+                $('#input_max').keyup(function () {
+                    if (!$('#link_descarga').hasClass('hidden')) {
+                        $('#link_descarga').addClass('hidden');
+                    }
+                });
+                $('#new_xml').click(function () {
+                    var input_min = parseInt(($('#input_min').val() === '') ? 0 : $('#input_min').val());
+                    var input_max = parseInt(($('#input_max').val() === '') ? 0 : $('#input_max').val());
+                    if (validar(input_min, input_max) === true) {
+                        var url = $('#link_descarga').attr('href');
+                        var url_temp = url.split('/');
+                        var max = url_temp[url_temp.length - 1];
+                        var min = url_temp[url_temp.length - 2];
+                        url = url.replace('/' + min + '/' + max, '');
+                        url += '/' + input_min + '/' + input_max;
+                        $('#link_descarga').attr('href', url);
+                        $('#link_descarga').removeClass('hidden');
+                    }
+                });
+            });
+            function justNumbers(e) {
+                var keynum = window.event ? window.event.keyCode : e.which;
+//                if ((keynum == 8) || (keynum == 46)) {
+                if ((keynum == 8)) {
+                    return true;
+                }
+                return /\d/.test(String.fromCharCode(keynum));
+            }
+            function validar(input_min, input_max) {
+                if (input_min === undefined || input_min === '') {
+                    $('#input_min').parent('.form-group').addClass('has-error');
+                    return false;
+                } else {
+                    $('#input_min').parent('.form-group').removeClass('has-error');
+                }
+                if (input_max === undefined || input_max === '') {
+                    $('#input_max').parent('.form-group').addClass('has-error');
+                    return false;
+                } else {
+                    $('#input_max').parent('.form-group').removeClass('has-error');
+                }
+                if (input_max >= input_min && input_min > 0 && input_max > 0) {
+                    $('#div_error').addClass('hidden');
+                    return true;
+                } else {
+                    if ($('#div_error').hasClass('hidden')) {
+                        $('#div_error').removeClass('hidden');
+                    }
+                    if (input_min === '' || input_min === 0 || input_max === '' || input_max === 0) {
+                        $('#div_error_text').html('Los salarios deben de ser mayores a 0.');
+                    }
+                    if (input_min > input_max) {
+                        $('#div_error_text').html('El salario mínimo no debe de ser mayor al salario máximo.');
+                    }
+                    return false;
+                }
+            }
+            function ver_detalle(id) {
+                $('#modal_name').html(listado[0][id]['name']);
+                var detalle = '<div>name: ' + listado[0][id]['name'] + '</div>';
+                detalle += '<div>email: ' + listado[0][id]['email'] + '</div>';
+                detalle += '<div>phone: ' + listado[0][id]['phone'] + '</div>';
+                detalle += '<div>address: ' + listado[0][id]['address'] + '</div>';
+                detalle += '<div>position: ' + listado[0][id]['position'] + '</div>';
+                detalle += '<div>salary: ' + listado[0][id]['salary'] + '</div>';
+                var skills = '';
+                $(listado[0][id]['skills']).each(function (k, v) {
+                    skills += ((skills.length > 0) ? ', ' : '') + v['skill'];
+                });
+                detalle += '<div>skills: ' + skills + '</div>';
+                $('#contenido_detalle').html(detalle);
+                $('#modal_detalle').modal('show');
+            }
+        </script>
+    </head>
+    <body>
+        <!--<pre> <?php // print_r($listado);                 ?></pre>-->
+        <div class="container">
+            <h1 class="text-center">Listado</h1>
+            <div class="form-group">
+                <label>Búsqueda por email</label>
+                <input id="filtar_email" type="text" class="form-control" placeholder="Escriba el email aquí">
+            </div>
+            <table id="table_filtrar" class="table table-condensed table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>name</th>
+                        <th>email</th>
+                        <th>positions</th>
+                        <th>salary</th>
+                        <th>Detalle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($listado as $k => $v) { ?>
+                        <tr>        
+                            <td>
+                                <?php echo $listado[$k]['name']; ?>
+                            </td>
+                            <td type='email'>
+                                <?php echo $listado[$k]['email']; ?>
+                            </td>
+                            <td>
+                                <?php echo $listado[$k]['position']; ?>
+                            </td>
+                            <td>
+                                <?php echo $listado[$k]['salary']; ?>
+                            </td>
+                            <td>
+                                <a style="cursor:pointer;" onclick="ver_detalle('<?php echo $listado[$k]['id']; ?>');"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Ver detalle</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <div id="div_error" class="alert alert-danger hidden" role="alert">
+                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                <span class="sr-only">Error:</span>
+                <span id="div_error_text"></span>
+            </div>
+            <div class="row">
+                <div class="col-sm-8">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label>Salario Mínimo</label>
+                            <input onkeypress="return justNumbers(event);" type="text" class="form-control" id="input_min" placeholder="Salario Mínimo">
+                        </div>
+                        <div class="form-group">
+                            <label>Salario Máximo</label>
+                            <input onkeypress="return justNumbers(event);" type="text" class="form-control" id="input_max" placeholder="Salario Máximo">
+                        </div>
+                        <button id="new_xml" type="button" class="btn btn-default">Crear XML</button>
+                    </form>
+                </div>
+                <div class="col-sm-4 text-center">
+                    <a id="link_descarga" class="hidden" target="_blank" href="<?php echo $ruta; ?>">Descarga xml</a>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="modal_detalle" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="modal_name"></h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="contenido_detalle"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
